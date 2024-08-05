@@ -1,0 +1,83 @@
+﻿@model Claysys_SQLTask.Models.LoginModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+<div class="claysys-icon d-flex justify-content-center align-items-center m-3">
+    <img class="css-main-logo" alt="IT Consulting Services Company - ClaySys Technologies" title="IT Consulting Services Company - ClaySys Technologies" src="~/images/claysys-symbol.png">
+</div>
+
+<div class="css-login-title d-flex justify-content-center align-items-center m-3">
+    <h3>Login to Task tracker</h3>
+</div>
+<div class="container d-flex justify-content-center align-items-center">
+    <div class="row p-4 css-form-container">
+        <div class="col-md-12">
+            <form asp-action="Login">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group mt-3">
+                    <label asp-for="UserName" class="control-label">Username</label>
+                    <input asp-for="UserName" class="form-control" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <div class="form-group mt-3">
+                    <label asp-for="Password" class="control-label">Password</label>
+                    <input type="password" asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="css-forgot-password mt-2">
+                    <a class="css-link">Forgot password?</a>
+                </div>
+                <div class="form-group d-grid mt-2">
+                    <input type="submit" value="Login" class="btn btn-success btn-block" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+ <div class="css-redirection-links d-flex justify-content-center align-items-center mt-5">
+        <p class="fw-bold">New to task tracker? <a class="css-link">create account</a></p>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+</body>
+</html>
+
+<style>
+    .css-form-container{
+        background-color: #ebedf0;
+        border-radius: 3px;
+        
+    }
+
+    .css-login-title{
+        font-family:Calibri;
+    }
+    
+    .css-main-logo{
+        max-width:70px;
+        max-height:70px;
+    }
+    .css-link{
+        color:blue;
+        text-decoration:none;
+        font-weight: normal;
+    }
+
+    .css-forgot-password{
+        font-size:14px;
+    }
+</style>
