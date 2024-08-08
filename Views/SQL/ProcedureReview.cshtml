@@ -1,0 +1,77 @@
+﻿@model Claysys_SQLTask.Models.SpReview
+
+@{
+    ViewData["Title"] = "ProcedureReview";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<h3 class="text-center">Procedure Review</h3>
+
+
+<div class="container">
+        <form asp-action="ProcedureReview">
+            <input asp-for="SPID" value="@ViewBag.SPID" class="form-control" hidden/>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mt-3">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="ClientName" class="control-label">Client name</label>
+                    <input asp-for="ClientName" value="@ViewBag.ClientName" class="form-control" disabled />
+                <span asp-validation-for="ClientName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="ProjectName" class="control-label">Project name</label>
+                    <input asp-for="ProjectName" value="@ViewBag.ProjectName" class="form-control" disabled />
+                <span asp-validation-for="ProjectName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="DatabaseName" class="control-label">Database name</label>
+                    <input asp-for="DatabaseName" value="@ViewBag.DatabaseName" class="form-control" disabled />
+                <span asp-validation-for="DatabaseName" class="text-danger"></span>
+            </div>
+        </div>
+        </div>
+        <div class="row mt-3">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label asp-for="SPName" class="control-label">Procedure name</label>
+                    <input asp-for="SPName" value="@ViewBag.SPName" class="form-control" disabled />
+                <span asp-validation-for="SPName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                    <label asp-for="AssignedBy" class="control-label">Assigned by</label>
+                <input asp-for="AssignedBy" class="form-control" />
+                <span asp-validation-for="AssignedBy" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label  class="control-label"> Created by</label>
+                <input  Value="@User.Identity.Name" class="form-control" disabled />
+                <span asp-validation-for="CreatedBy" class="text-danger"></span>
+            </div>
+        </div>
+        </div>
+        <div class="row mt-3">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+        </div>
+        <div class="form-group mt-3">
+            <input type="submit" value="Submit " style="background-color:#16a358;color:white" class="btn " />
+        </div>
+        </form>
+   
+</div>
+
+

@@ -1,0 +1,103 @@
+﻿@model Claysys_SQLTask.Models.Procedures
+
+@{
+    ViewData["Title"] = "AddProcedure";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<h3 class="text-center">Create Procedure</h3>
+
+<div class="container">
+        <form asp-action="AddProcedure">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row mt-3">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="client">Client</label>
+                <select id="client" asp-for="ClientID" class="form-control">
+                    <option value="">Select Client</option>
+                    @foreach (var client in ViewBag.Clients)
+                    {
+                        <option value="@client.ClientID">@client.ClientName</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="project">Project</label>
+                <select id="project" asp-for="ProjectID" class="form-control" disabled>
+                    <option value="">Select Project</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="database">Database</label>
+                <select id="database" asp-for="DataBaseID" class="form-control" disabled>
+                    <option value="">Select Database</option>
+                </select>
+            </div>
+        </div>
+        </div>
+        <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label for="SPName">Procedure name</label>
+                <input asp-for="SPName" class="form-control" />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>CreatedBy</label>
+                <input Value="@User.Identity.Name" class="form-control" disabled />
+            </div>
+        </div>
+        </div>
+            <div class="form-group  mt-4">
+                <input type="submit" style="background-color:#16a358;color:white" value="Create" class="btn" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#client').change(function () {
+                var clientId = $(this).val();
+                if (clientId) {
+                    $.post('/SQL/GetProjects', { clientId: clientId }, function (data) {
+                        var projectSelect = $('#project');
+                        projectSelect.empty().append('<option value="">Select Project</option>');
+                        $.each(data, function (index, project) {
+                            projectSelect.append('<option value="' + project.projectID + '">' + project.projectName + '</option>');
+                        });
+                        projectSelect.prop('disabled', false);
+                    });
+                } else {
+                    $('#project').empty().append('<option value="">Select Project</option>').prop('disabled', true);
+                    $('#database').empty().append('<option value="">Select Database</option>').prop('disabled', true);
+                }
+            });
+
+            $('#project').change(function () {
+                var projectId = $(this).val();
+                if (projectId) {
+                    $.post('/SQL/GetDataBases', { projectId: projectId }, function (data) {
+                        var databaseSelect = $('#database');
+                        databaseSelect.empty().append('<option value="">Select Database</option>');
+                        $.each(data, function (index, database) {
+                            databaseSelect.append('<option value="' + database.dataBaseID + '">' + database.dataBaseName + '</option>');
+                        });
+                        databaseSelect.prop('disabled', false);
+                    });
+                } else {
+                    $('#database').empty().append('<option value="">Select Database</option>').prop('disabled', true);
+                }
+            });
+        });
+    </script>
+}
+
