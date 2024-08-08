@@ -1,0 +1,79 @@
+﻿@model Claysys_SQLTask.Models.ProcedureTableRelation
+
+@{
+    ViewData["Title"] = "ProcedureTableRelation";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<h3>Procedure Table Relation</h3>
+
+
+<div class="container">
+        <form asp-action="ProcedureTableRelation">
+            <input asp-for="SPID" class="form-control" hidden/>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="ClientName" class="control-label">Client name</label>
+                        <input asp-for="ClientName" value="@ViewBag.ClientName" class="form-control" disabled />
+                        <span asp-validation-for="ClientName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="ProjectName" class="control-label">Project name</label>
+                        <input asp-for="ProjectName" value="@ViewBag.ProjectName" class="form-control" disabled />
+                        <span asp-validation-for="ProjectName" class="text-danger"></span>
+                    </div>
+                </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label asp-for="DataBaseName" class="control-label">Database name</label>
+                    <input asp-for="DataBaseName" value="@ViewBag.DatabaseName" class="form-control" disabled />
+                    <span asp-validation-for="DataBaseName" class="text-danger"></span>
+                </div>
+            </div>
+                
+            </div>
+            <div class="row mt-3">     
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="SPName" class="control-label">Procedure name</label>
+                        <input asp-for="SPName" value="@ViewBag.SPName" class="form-control" disabled />
+                        <span asp-validation-for="SPName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label"> Created by</label>
+                        <input Value="@User.Identity.Name" class="form-control" disabled /> 
+                    </div>
+                </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label for="TableID">Tables</label>
+                    <select id="TableID" name="TableID" class="form-control">
+                        <option value="">Select Tables</option>
+                        @foreach (var table in ViewBag.Tables)
+                        {
+                            <option value="@table.TableID">@table.TableName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            
+            </div>
+        
+            <div class="col-md-4">
+                <div class="form-group mt-3">
+                    <input type="submit" style="background-color:#16a358;color:white" value="submit" class="btn" />
+                </div>
+            </div>
+        
+        </form>
+</div>
+
+
+

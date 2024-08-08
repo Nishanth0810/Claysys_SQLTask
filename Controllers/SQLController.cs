@@ -3,6 +3,7 @@ using Claysys_SQLTask.Models;
 using Claysys_SQLTask.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.CodeAnalysis;
 
 namespace Claysys_SQLTask.Controllers
 {
@@ -58,6 +59,7 @@ namespace Claysys_SQLTask.Controllers
         }
 
         [HttpPost]
+        [Route("SQL/Table")]
         public IActionResult AddTable(Tables table)
         {
             UserRepository userRepo = new UserRepository(_configuration);
@@ -76,11 +78,13 @@ namespace Claysys_SQLTask.Controllers
         public IActionResult AddProcedure()
         {
             UserRepository userRepo = new UserRepository(_configuration);
+
             ViewBag.Clients = userRepo.GetClients();
             return View();
         }
 
         [HttpPost]
+        [Route("SQL/Procedure")]
         public IActionResult AddProcedure(Procedures procedure)
         {
             UserRepository userRepo = new UserRepository(_configuration);
@@ -103,6 +107,7 @@ namespace Claysys_SQLTask.Controllers
         }
 
         [HttpPost]
+        [Route("SQL/Index")]
         public IActionResult AddIndex(Indexes index)
         {
             UserRepository userRepo = new UserRepository(_configuration);
@@ -142,7 +147,7 @@ namespace Claysys_SQLTask.Controllers
         }
 
         [HttpPost]
-        public IActionResult Project(Project project)
+        public IActionResult Project(Claysys_SQLTask.Models.Project project)
         {
             UserRepository userRepo = new UserRepository(_configuration);
             bool result = userRepo.InsertProject(project);
@@ -224,6 +229,48 @@ namespace Claysys_SQLTask.Controllers
             return View(spReviews);
         }
 
+        [HttpGet]
+        public IActionResult ProcedureTableRelation(int SPID)
+        {
+            UserRepository userRepo = new UserRepository(_configuration);
+            ProcedureTableRelation procedureTableRelation = new ProcedureTableRelation();
+            procedureTableRelation = userRepo.GetProcedureTableRelationById(SPID);
+            ViewBag.Tables = userRepo.GetTables(procedureTableRelation.ClientID, procedureTableRelation.ProjectID, procedureTableRelation.DataBaseID);
+            ViewBag.ClientName = procedureTableRelation.ClientName;
+            ViewBag.ProjectName = procedureTableRelation.ProjectName;
+            ViewBag.SPID = procedureTableRelation.SPID;
+            ViewBag.SPName = procedureTableRelation.SPName;
+            ViewBag.DatabaseName = procedureTableRelation.DataBaseName;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ProcedureTableRelation(ProcedureTableRelation procedureTableRelation)
+        {
+            UserRepository userRepo = new UserRepository(_configuration);
+            var CreatedBy = (int)_httpContextAccessor.HttpContext.Session.GetInt32("EmpId");
+            bool result = userRepo.InsertProcedureTableRelation(procedureTableRelation,CreatedBy);
+            if (result)
+            {
+                return RedirectToAction("Home");
+            }
+            return RedirectToAction("Home");
+        }
+
+        [HttpGet]
+        public IActionResult ProcedureIndexRelation(int SPID)
+        {
+            UserRepository userRepo = new UserRepository(_configuration);
+            ProcedureTableRelation procedureTableRelation = new ProcedureTableRelation();
+            procedureTableRelation = userRepo.GetProcedureTableRelationById(SPID);
+            ViewBag.Indexes = userRepo.GetTables(procedureTableRelation.ClientID, procedureTableRelation.ProjectID, procedureTableRelation.DataBaseID);
+            ViewBag.ClientName = procedureTableRelation.ClientName;
+            ViewBag.ProjectName = procedureTableRelation.ProjectName;
+            ViewBag.SPID = procedureTableRelation.SPID;
+            ViewBag.SPName = procedureTableRelation.SPName;
+            ViewBag.DatabaseName = procedureTableRelation.DataBaseName;
+            return View();
+        }
 
     }
 }

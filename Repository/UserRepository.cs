@@ -302,6 +302,50 @@ namespace Claysys_SQLTask.Repository
             }
             return spReviews;
         }
+
+        public ProcedureTableRelation GetProcedureTableRelationById(int SPID)
+        {
+            ProcedureTableRelation procedureTableRelation = new ProcedureTableRelation();
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand("SpS_ProcedureTableRelationById", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@SPID", SPID);
+                    con.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        procedureTableRelation.SPID = Convert.ToInt32(reader["SPID"]);
+                        procedureTableRelation.SPName = reader["SPName"].ToString();
+                        procedureTableRelation.ClientID = Convert.ToInt32(reader["ClientID"]);
+                        procedureTableRelation.ClientName = reader["ClientName"].ToString();
+                        procedureTableRelation.ProjectID = Convert.ToInt32(reader["ProjectID"]);
+                        procedureTableRelation.ProjectName = reader["ProjectName"].ToString();
+                        procedureTableRelation.DataBaseID = Convert.ToInt32(reader["DataBaseID"]);
+                        procedureTableRelation.DataBaseName = reader["DatabaseName"].ToString();
+
+                    }
+                    con.Close();
+                }
+            }
+            return procedureTableRelation;
+        }
         
+        public bool InsertProcedureTableRelation(ProcedureTableRelation procedureTableRelation,int CreatedBy)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Spi_ProcedureTableRelation", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@SPID", procedureTableRelation.SPID);
+                cmd.Parameters.AddWithValue("@TableID", procedureTableRelation.TableID);
+                cmd.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                int result = cmd.ExecuteNonQuery();
+                return result > 0;
+            }
+        }
+
     }
 }
