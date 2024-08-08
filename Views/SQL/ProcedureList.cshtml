@@ -1,0 +1,43 @@
+﻿@model IEnumerable<Claysys_SQLTask.Models.Procedures>
+
+@{
+    ViewData["Title"] = "ProcedureList";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<h1>ProcedureList</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                S.No
+            </th>
+            <th>
+                Procedure
+            </th>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SPID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.SPName)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

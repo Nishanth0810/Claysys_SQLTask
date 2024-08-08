@@ -1,0 +1,35 @@
+﻿@model Claysys_SQLTask.Models.Project
+
+@{
+    ViewData["Title"] = "Project";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<h3>Project</h3>
+
+<div class="row mt-3">
+    <div class="col-md-4">
+        <form asp-action="Project">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group mt-2">
+                <label for="client">Client</label>
+                <select id="client" asp-for="ClientID" class="form-control">
+                    <option value="">Select Client</option>
+                    @foreach (var client in ViewBag.Clients)
+                    {
+                        <option value="@client.ClientID">@client.ClientName</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group mt-2">
+                <label asp-for="ProjectName" class="control-label">Project name</label>
+                <input asp-for="ProjectName" class="form-control" />
+                <span asp-validation-for="ProjectName" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-3">
+                <input type="submit" style="background-color:#16a358;color:white" value="Create" class="btn btn-block" />
+            </div>
+        </form>
+    </div>
+</div>
+

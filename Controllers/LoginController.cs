@@ -36,7 +36,7 @@ namespace Claysys_SQLTask.Controllers
                 EmpId = (int)session.GetInt32("EmpId");
                 UserName = session.GetString("UserName");
                 Role = session.GetString("Role");
-                return View();
+                return RedirectToAction("Home","SQL");
             }
             
             return View(loginModel);
