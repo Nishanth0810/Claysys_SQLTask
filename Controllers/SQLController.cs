@@ -3,23 +3,32 @@ using Claysys_SQLTask.Models;
 using Claysys_SQLTask.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.Data.SqlClient;
+using System.Data;
+using System.Text;
+using System.Configuration;
+using Newtonsoft.Json;
 
 namespace Claysys_SQLTask.Controllers
 {
-    public class SQLController:Controller
+    public class SQLController : Controller
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public SQLController(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
+        private readonly UserRepository _userRepository;
+        public SQLController(IConfiguration configuration, IHttpContextAccessor httpContextAccessor, UserRepository userRepository)
         {
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
+            _userRepository = userRepository;
         }
         [HttpGet]
         [Route("Home")]
         public IActionResult Home()
         {
-            return View();
+            int CreatedBy = _httpContextAccessor.HttpContext.Session.GetInt32("EmpId") ?? 2106;
+            var data = _userRepository.GetHomeModelByUser(CreatedBy);
+            return View(data);
         }
         [HttpGet]
         public IActionResult Database()
@@ -191,7 +200,7 @@ namespace Claysys_SQLTask.Controllers
         {
             UserRepository userRepo = new UserRepository(_configuration);
             SpReview spReview = new SpReview();
-            spReview=userRepo.GetProcedureById(SPID);
+            spReview = userRepo.GetProcedureById(SPID);
             ViewBag.ClientName = spReview.ClientName;
             ViewBag.ProjectName = spReview.ProjectName;
             ViewBag.SPID = spReview.SPID;
@@ -224,6 +233,66 @@ namespace Claysys_SQLTask.Controllers
             return View(spReviews);
         }
 
+        public async Task<IActionResult> GetFilteredData(string filters, int page = 1, int pageSize = 5)
+        {
+
+            var dataTable = _userRepository.GetSpDetails(filters, page, pageSize);
+            var totalRecords = _userRepository.GetSpCount(filters, page, pageSize);
+            var result = new List<Dictionary<string, object>>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    dict[column.ColumnName] = row[column];
+                }
+                result.Add(dict);
+            }
+
+            return Json(new { data = result, totalRecords });
+        }
+
+        public async Task<IActionResult> GetindexFilteredData(string filters, int page = 1, int pageSize = 5)
+        {
+
+            var dataTable = _userRepository.GetIndexDetails(filters, page, pageSize);
+            var totalRecords = _userRepository.GetIndexCount(filters, page, pageSize);
+            var result = new List<Dictionary<string, object>>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    dict[column.ColumnName] = row[column];
+                }
+                result.Add(dict);
+            }
+
+            return Json(new { data = result, totalRecords });
+        }
+
+        public async Task<IActionResult> GetClientData(string filters, int page = 1, int pageSize = 5)
+        {
+
+            var dataTable = _userRepository.GetClientDetails(filters, page, pageSize);
+            var totalRecords = _userRepository.GetClientCount(filters, page, pageSize);
+            var result = new List<Dictionary<string, object>>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    dict[column.ColumnName] = row[column];
+                }
+                result.Add(dict);
+            }
+
+            return Json(new { data = result, totalRecords });
+        }
+
 
     }
+
 }
+
+   

@@ -3,9 +3,13 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Build.Evaluation;
 using Microsoft.CodeAnalysis;
 using Microsoft.Data.SqlClient;
+using Newtonsoft.Json;
 using System.Buffers;
+using System.Configuration;
 using System.Data;
 using System.Security.Policy;
+using static Claysys_SQLTask.Models.HomeContentModel;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace Claysys_SQLTask.Repository
 {
@@ -125,8 +129,8 @@ namespace Claysys_SQLTask.Repository
                 return result > 0;
             }
         }
-        
-        public bool InsertTable(Tables table,int CreatedBy)
+
+        public bool InsertTable(Tables table, int CreatedBy)
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
@@ -161,7 +165,7 @@ namespace Claysys_SQLTask.Repository
             }
         }
 
-        public bool InsertIndex(Indexes Index,int CreatedBy)
+        public bool InsertIndex(Indexes Index, int CreatedBy)
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
@@ -255,7 +259,7 @@ namespace Claysys_SQLTask.Repository
             return spReview;
         }
 
-        public bool InsertSPReview(SpReview spReview,int CreatedBy)
+        public bool InsertSPReview(SpReview spReview, int CreatedBy)
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
@@ -279,7 +283,7 @@ namespace Claysys_SQLTask.Repository
                 using (SqlCommand cmd = new SqlCommand("sps_ProcedureReviews", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@SPID",SPID);
+                    cmd.Parameters.AddWithValue("@SPID", SPID);
                     con.Open();
                     SqlDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
@@ -302,6 +306,407 @@ namespace Claysys_SQLTask.Repository
             }
             return spReviews;
         }
-        
+
+        public Homemodel GetHomeModelByUser(int userId)
+        {
+            var homeModel = new Homemodel
+            {
+                spnames = new List<Spname>(),
+                availabilities = new List<Availability>(),
+                tabels = new List<Tabel>(),
+            };
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                connection.Open();
+                using (var command = new SqlCommand("SPS_GetallSps", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@UserId", userId);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            homeModel.spnames.Add(new Spname
+                            {
+                                Title = reader["Spname"].ToString()
+                            });
+
+                            if (reader.NextResult())
+                            {
+                                // Read Tabels
+
+                            }
+                        }
+                    }
+                }
+                using (var commandSp = new SqlCommand("SPS_GetAvailability", connection))
+                {
+                    commandSp.CommandType = CommandType.StoredProcedure;
+                    commandSp.Parameters.AddWithValue("@UserId", userId);
+                    using (var Spreader = commandSp.ExecuteReader())
+                    {
+                        while (Spreader.Read())
+                        {
+
+                            homeModel.availabilities.Add(new Availability
+                            {
+                                Name = Spreader["UserName"].ToString(),
+                                Priority = Spreader["PriorityType"].ToString()
+
+                            });
+
+                        }
+                    }
+                }
+                //using (var commandTbl = new SqlCommand("sps_techstackuserview", connection))
+                //{
+                //    commandTbl.CommandType = CommandType.StoredProcedure;
+                //    commandTbl.Parameters.AddWithValue("@UserId", userId);
+                //    using (var reader = commandTbl.ExecuteReader())
+                //    {
+                //        while (reader.Read())
+                //        {
+                //            if (reader.Read())
+                //            {
+                //                homeModel.tabels.Add(new Tabel
+                //                {
+                //                    Title = reader["TableName"].ToString()
+                //                });
+                //            }
+                //        }
+                //    }
+                //}
+                using (var commandProjectQuery = new SqlCommand("sps_getCurrentproject", connection))
+                {
+                    commandProjectQuery.CommandType = CommandType.StoredProcedure;
+                    commandProjectQuery.Parameters.AddWithValue("@UserId", userId);
+                    using (var PQreader = commandProjectQuery.ExecuteReader())
+                    {
+                        while (PQreader.Read())
+                        {
+
+                            homeModel.Client = PQreader["Client"].ToString();
+                            homeModel.Project = PQreader["Project"].ToString();
+                            homeModel.Database = PQreader["Database"].ToString();
+
+                        }
+                    }
+                }
+
+            }
+
+            return homeModel;
+        }
+
+
+        public DataTable GetSpDetails(string filters, int page = 1, int pageSize = 5)
+        {
+            var dataTable = new DataTable();
+            
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("sps_GetProcedureDetails", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Add pagination parameters
+                    command.Parameters.AddWithValue("@Page", page);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    // Add filter parameters
+                    foreach (var filter in filterList)
+                    {
+                        if (!string.IsNullOrEmpty(filter.Value))
+                        {
+                            command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                        }
+                        else
+                        {
+                            // Pass null or default value if the filter value is empty
+                            command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                        }
+                    }
+
+                    var adapter = new SqlDataAdapter(command);
+                    connection.OpenAsync();
+                    adapter.Fill(dataTable);
+                }
+
+            }
+            return dataTable;
+        }
+
+        public int GetSpCount(string filters, int page = 1, int pageSize = 5)
+        {
+            var totalRecords = 0;
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open(); 
+
+                    using (var command = new SqlCommand("sps_Spdetails_TotalCount", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        // Add pagination parameters
+                        command.Parameters.AddWithValue("@Page", page);
+                        command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                        // Add filter parameters
+                        foreach (var filter in filterList)
+                        {
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                            }
+                            else
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                            }
+                        }
+
+                        totalRecords = (int)command.ExecuteScalar();
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+             
+                Console.WriteLine($"SQL Error: {sqlEx.Message}");
+               
+                throw;
+            }
+            catch (Exception ex)
+            {
+               
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
+
+            return totalRecords;
+        }
+
+        public DataTable GetIndexDetails(string filters, int page = 1, int pageSize = 5)
+        {
+            var dataTable = new DataTable();
+
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("sps_GetINDEXDetails", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Add pagination parameters
+                    command.Parameters.AddWithValue("@Page", page);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    // Add filter parameters
+                    foreach (var filter in filterList)
+                    {
+                        if (!string.IsNullOrEmpty(filter.Value))
+                        {
+                            command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                        }
+                        else
+                        {
+                            // Pass null or default value if the filter value is empty
+                            command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                        }
+                    }
+
+                    var adapter = new SqlDataAdapter(command);
+                    connection.OpenAsync();
+                    adapter.Fill(dataTable);
+                }
+
+            }
+            return dataTable;
+        }
+
+        public int GetIndexCount(string filters, int page = 1, int pageSize = 5)
+        {
+            var totalRecords = 0;
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    using (var command = new SqlCommand("sps_GetindexDetailsCount", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        // Add pagination parameters
+                        command.Parameters.AddWithValue("@Page", page);
+                        command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                        // Add filter parameters
+                        foreach (var filter in filterList)
+                        {
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                            }
+                            else
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                            }
+                        }
+
+                        totalRecords = (int)command.ExecuteScalar();
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+
+                Console.WriteLine($"SQL Error: {sqlEx.Message}");
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
+
+            return totalRecords;
+        }
+
+
+        public DataTable GetClientDetails(string filters, int page = 1, int pageSize = 5)
+        {
+            var dataTable = new DataTable();
+
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("sps_GetClientDetails", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Add pagination parameters
+                    command.Parameters.AddWithValue("@Page", page);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    // Add filter parameters
+                    foreach (var filter in filterList)
+                    {
+                        if (!string.IsNullOrEmpty(filter.Value))
+                        {
+                            command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                        }
+                        else
+                        {
+                            // Pass null or default value if the filter value is empty
+                            command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                        }
+                    }
+
+                    var adapter = new SqlDataAdapter(command);
+                    connection.OpenAsync();
+                    adapter.Fill(dataTable);
+                }
+
+            }
+            return dataTable;
+        }
+
+        public int GetClientCount(string filters, int page = 1, int pageSize = 5)
+        {
+            var totalRecords = 0;
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    using (var command = new SqlCommand("sps_GetClientDetailscount", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        // Add pagination parameters
+                        command.Parameters.AddWithValue("@Page", page);
+                        command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                        // Add filter parameters
+                        foreach (var filter in filterList)
+                        {
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                            }
+                            else
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                            }
+                        }
+
+                        totalRecords = (int)command.ExecuteScalar();
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+
+                Console.WriteLine($"SQL Error: {sqlEx.Message}");
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
+
+            return totalRecords;
+        }
+
     }
 }
