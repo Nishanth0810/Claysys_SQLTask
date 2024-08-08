@@ -1,11 +1,152 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model Claysys_SQLTask.Models.HomeContentModel.Homemodel
+@{
+    ViewData["Title"] = "Home";
+    Layout = "~/Views/Shared/_Navbar.cshtml";
+    int chunkSize = 5;
+    var orderedAvailabilities = Model.availabilities.OrderBy(a => a.Name).ToList();
+    var chunks = orderedAvailabilities
+                     .Select((value, index) => new { value, index })
+                     .GroupBy(x => x.index / chunkSize)
+                     .Select(g => g.Select(x => x.value).ToList())
+                     .ToList();
+}
 
   @{
     Layout = "_UserLayout";
 }
 
+<head>
+    <link href="~/lib/bootstrap/dist/css/bootstrap4.css" rel="stylesheet" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <link href="~/css/home.css" rel="stylesheet" />
+
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="form-row">
+            <div class="form-group col-md-4">
+                <div class="talent-container">
+                    <div class="talent-header">
+                        <i class="fa-solid fa-table"></i>
+                        <h5>My Sp Review</h5>
+                    </div>
+                    @if (Model.spnames.Count == 0)
+                    {
+                        <div class="Content">
+                            <div class="info-message">
+                                Info! No item to display in Sp Review Section.
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="Content">
+                            @foreach (var Sps in Model.spnames)
+                            {
+                                <p>@Sps.Title</p>
+                            }
+                        </div>
+                    }
+
+                </div>
+            </div>
+            <div class="form-group col-md-4">
+                <div class="talent-container">
+                    <div class="talent-header">
+                        <i class="fas fa-suitcase d-inline-block" aria-hidden="true"></i>
+                        <h5>My Current Project</h5>
+                    </div>
+                    <div class="Content">
+                        <p>Client   : @Model.Client</p>
+                        <p>Project  : @Model.Project</p>
+                        <p>Database : @Model.Database</p>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-4">
+                <div class="talent-container">
+                    <div class="talent-header">
+                        <i class="fa-solid fa-users"></i>
+                        <h5>Team Availability</h5>
+                    </div>
+
+                    @if (chunks.Count == 0)
+                    {
+                        <div class="info-message">
+                            Info! No item to display in Team Availability Section.
+                        </div>
+
+                    }
+                    else
+                    {
+                        <div class="Content Team">
+
+                            <div class="slideshow-container">
+
+                                @foreach (var chunk in chunks)
+                                {
+                                    <div class="mySlides">
+                                        @foreach (var Value in chunk)
+                                        {
+                                            <p>@Value.Name - @Value.Priority Priority Task</p>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    <div style="text-align:center">
+                        <span class="dot" onclick="currentSlide(1)"></span>
+                        <span class="dot" onclick="currentSlide(2)"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-md-4">
+                <div class="talent-container">
+                    <div class="talent-header">
+                        <i class="fa-solid fa-table-list"></i>
+                        <h5>My Table Review</h5>
+                    </div>
+                    @if (Model.tabels.Count == 0)
+                    {
+                        <div class="Content">
+                            <div class="info-message">
+                                Info! No item to display in Table Review Section.
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    let slideIndex = 0;
+    showSlides();
+
+    function showSlides() {
+        let i;
+        let slides = document.getElementsByClassName("mySlides");
+        let dots = document.getElementsByClassName("dot");
+        for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+        }
+        slideIndex++;
+        if (slideIndex > slides.length) { slideIndex = 1 }
+        for (i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" active", "");
+        }
+        slides[slideIndex - 1].style.display = "block";
+        dots[slideIndex - 1].className += " active";
+        setTimeout(showSlides, 4000);
+    }
+</script>
 
 
-<h2>Hello</h2>
+</html>
+
+
+
+
+
