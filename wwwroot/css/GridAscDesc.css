@@ -1,0 +1,32 @@
+﻿
+
+th.sortable {
+    cursor: pointer;
+    position: relative;
+    padding-right: 10px;
+}
+
+th.sortable:after {
+    content: '\f175';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8em;
+}
+
+th.sortable.desc:after {
+    content: '\f176';
+}
+
+th, td {
+    white-space: nowrap; /* Prevent text wrapping in cells */
+}
+
+table {
+    width: 100%;
+    table-layout: auto; /* Adjust column width based on content */
+}
+

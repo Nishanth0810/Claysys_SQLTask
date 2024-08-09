@@ -330,14 +330,10 @@ namespace Claysys_SQLTask.Repository
                         {
                             homeModel.spnames.Add(new Spname
                             {
-                                Title = reader["Spname"].ToString()
+                                Title = reader["Spname"].ToString(),
+                                DateTime = reader["Created"].ToString()
                             });
 
-                            if (reader.NextResult())
-                            {
-                                // Read Tabels
-
-                            }
                         }
                     }
                 }
@@ -667,6 +663,312 @@ namespace Claysys_SQLTask.Repository
                     connection.Open();
 
                     using (var command = new SqlCommand("sps_GetClientDetailscount", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        // Add pagination parameters
+                        command.Parameters.AddWithValue("@Page", page);
+                        command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                        // Add filter parameters
+                        foreach (var filter in filterList)
+                        {
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                            }
+                            else
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                            }
+                        }
+
+                        totalRecords = (int)command.ExecuteScalar();
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+
+                Console.WriteLine($"SQL Error: {sqlEx.Message}");
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
+
+            return totalRecords;
+        }
+
+        public DataTable GetProjectDetails(string filters, int page = 1, int pageSize = 5)
+        {
+            var dataTable = new DataTable();
+
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("Sps_GetProjectDetails", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Add pagination parameters
+                    command.Parameters.AddWithValue("@Page", page);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    // Add filter parameters
+                    foreach (var filter in filterList)
+                    {
+                        if (!string.IsNullOrEmpty(filter.Value))
+                        {
+                            command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                        }
+                        else
+                        {
+                            // Pass null or default value if the filter value is empty
+                            command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                        }
+                    }
+
+                    var adapter = new SqlDataAdapter(command);
+                    connection.OpenAsync();
+                    adapter.Fill(dataTable);
+                }
+
+            }
+            return dataTable;
+        }
+
+        public int GetProjectCount(string filters, int page = 1, int pageSize = 5)
+        {
+            var totalRecords = 0;
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    using (var command = new SqlCommand("Sps_GetProjectDetailscnt", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        // Add pagination parameters
+                        command.Parameters.AddWithValue("@Page", page);
+                        command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                        // Add filter parameters
+                        foreach (var filter in filterList)
+                        {
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                            }
+                            else
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                            }
+                        }
+
+                        totalRecords = (int)command.ExecuteScalar();
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+
+                Console.WriteLine($"SQL Error: {sqlEx.Message}");
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
+
+            return totalRecords;
+        }
+
+        public DataTable GetDbDetails(string filters, int page = 1, int pageSize = 5)
+        {
+            var dataTable = new DataTable();
+
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("Sps_GetDBDetails", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Add pagination parameters
+                    command.Parameters.AddWithValue("@Page", page);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    // Add filter parameters
+                    foreach (var filter in filterList)
+                    {
+                        if (!string.IsNullOrEmpty(filter.Value))
+                        {
+                            command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                        }
+                        else
+                        {
+                            // Pass null or default value if the filter value is empty
+                            command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                        }
+                    }
+
+                    var adapter = new SqlDataAdapter(command);
+                    connection.OpenAsync();
+                    adapter.Fill(dataTable);
+                }
+
+            }
+            return dataTable;
+        }
+
+        public int GetDbCount(string filters, int page = 1, int pageSize = 5)
+        {
+            var totalRecords = 0;
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    using (var command = new SqlCommand("Sps_GetDbDetailscnt", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+
+                        // Add pagination parameters
+                        command.Parameters.AddWithValue("@Page", page);
+                        command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                        // Add filter parameters
+                        foreach (var filter in filterList)
+                        {
+                            if (!string.IsNullOrEmpty(filter.Value))
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                            }
+                            else
+                            {
+                                command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                            }
+                        }
+
+                        totalRecords = (int)command.ExecuteScalar();
+                    }
+                }
+            }
+            catch (SqlException sqlEx)
+            {
+
+                Console.WriteLine($"SQL Error: {sqlEx.Message}");
+
+                throw;
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"An error occurred: {ex.Message}");
+                throw;
+            }
+
+            return totalRecords;
+        }
+
+        public DataTable GetTableDetails(string filters, int page = 1, int pageSize = 5)
+        {
+            var dataTable = new DataTable();
+
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                using (var command = new SqlCommand("Sps_GetTableDetails", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Add pagination parameters
+                    command.Parameters.AddWithValue("@Page", page);
+                    command.Parameters.AddWithValue("@PageSize", pageSize);
+
+                    // Add filter parameters
+                    foreach (var filter in filterList)
+                    {
+                        if (!string.IsNullOrEmpty(filter.Value))
+                        {
+                            command.Parameters.AddWithValue($"@{filter.Column}", filter.Value);
+                        }
+                        else
+                        {
+                            // Pass null or default value if the filter value is empty
+                            command.Parameters.AddWithValue($"@{filter.Column}", DBNull.Value);
+                        }
+                    }
+
+                    var adapter = new SqlDataAdapter(command);
+                    connection.OpenAsync();
+                    adapter.Fill(dataTable);
+                }
+
+            }
+            return dataTable;
+        }
+
+        public int GetTableCount(string filters, int page = 1, int pageSize = 5)
+        {
+            var totalRecords = 0;
+            List<HomeContentModel.FilterObject> filterList = new List<HomeContentModel.FilterObject>();
+
+            if (!string.IsNullOrEmpty(filters))
+            {
+                filterList = JsonConvert.DeserializeObject<List<HomeContentModel.FilterObject>>(filters);
+            }
+
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    using (var command = new SqlCommand("Sps_GetTableDetailscnt", connection))
                     {
                         command.CommandType = CommandType.StoredProcedure;
 

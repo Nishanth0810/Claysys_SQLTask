@@ -4,6 +4,8 @@
     ViewData["Title"] = "AddProcedure";
     Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
+<link href="~/css/gridascdesc.css" rel="stylesheet" />
+<script src="~/js/listdetails.js" type="text/javascript"></script>
 
 <head>
     <meta charset="UTF-8">
@@ -148,7 +150,7 @@
 
                                 // Populate table headers
                                 columns.forEach(function (column) {
-                                    header.append('<th>' + column + '</th>');
+                                    header.append('<th class="sortable" onclick="onHeaderClick(event)">' + column + '</th>');
                                 });
 
                                 // Add filter row with input fields

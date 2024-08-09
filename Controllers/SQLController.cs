@@ -290,6 +290,63 @@ namespace Claysys_SQLTask.Controllers
             return Json(new { data = result, totalRecords });
         }
 
+        public async Task<IActionResult> GetProjectData(string filters, int page = 1, int pageSize = 5)
+        {
+
+            var dataTable = _userRepository.GetProjectDetails(filters, page, pageSize);
+            var totalRecords = _userRepository.GetProjectCount(filters, page, pageSize);
+            var result = new List<Dictionary<string, object>>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    dict[column.ColumnName] = row[column];
+                }
+                result.Add(dict);
+            }
+
+            return Json(new { data = result, totalRecords });
+        }
+
+        public async Task<IActionResult> GetDbData(string filters, int page = 1, int pageSize = 5)
+        {
+
+            var dataTable = _userRepository.GetDbDetails(filters, page, pageSize);
+            var totalRecords = _userRepository.GetDbCount(filters, page, pageSize);
+            var result = new List<Dictionary<string, object>>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    dict[column.ColumnName] = row[column];
+                }
+                result.Add(dict);
+            }
+
+            return Json(new { data = result, totalRecords });
+        }
+
+        public async Task<IActionResult> GetTableData(string filters, int page = 1, int pageSize = 5)
+        {
+
+            var dataTable = _userRepository.GetTableDetails(filters, page, pageSize);
+            var totalRecords = _userRepository.GetTableCount(filters, page, pageSize);
+            var result = new List<Dictionary<string, object>>();
+            foreach (DataRow row in dataTable.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    dict[column.ColumnName] = row[column];
+                }
+                result.Add(dict);
+            }
+
+            return Json(new { data = result, totalRecords });
+        }
+
 
     }
 

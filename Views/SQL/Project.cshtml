@@ -6,7 +6,8 @@
 }
 
 <h3>Project</h3>
-
+<script src="~/js/listdetails.js" type="text/javascript"></script>
+<link href="~/css/gridascdesc.css" rel="stylesheet" />
 <div class="row mt-3">
     <div class="col-md-4">
         <form asp-action="Project">
@@ -33,3 +34,159 @@
     </div>
 </div>
 
+<body>
+    <div class="container mt-4">
+        <table id="dataTable" class="table table-bordered">
+            <thead>
+                <tr id="tableHeader"></tr>
+                <tr id="filterRow"></tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <li class="page-item">
+                    <button id="firstPage" class="page-link">First</button>
+                </li>
+                <li class="page-item">
+                    <button id="prevPage" class="page-link">Previous</button>
+                </li>
+                <li class="page-item">
+                    <span id="pageInfo" class="page-link"></span>
+                </li>
+                <li class="page-item">
+                    <button id="nextPage" class="page-link">Next</button>
+                </li>
+                <li class="page-item">
+                    <button id="lastPage" class="page-link">Last</button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- jQuery and Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var currentPage = 1;
+            var pageSize = 10;
+            var totalRecords = 0;
+
+            function updatePaginationControls() {
+                $('#pageInfo').text(`Page ${currentPage} of ${Math.ceil(totalRecords / pageSize)}`);
+                $('#prevPage').prop('disabled', currentPage === 1);
+                $('#nextPage').prop('disabled', currentPage * pageSize >= totalRecords);
+            }
+
+            var columns = [];
+            function fetchData(page, pageSize) {
+                $.ajax({
+                    url: '/SQL/GetProjectData',
+                    method: 'GET',
+                    data: {
+                        filters: JSON.stringify(getFilters()),
+                        page: page,
+                        pageSize: pageSize
+                    },
+                    success: function (response) {
+                        var body = $('#tableBody');
+                        body.empty();
+
+                        totalRecords = response.totalRecords;
+                        updatePaginationControls();
+
+                        if (response.data.length > 0) {
+                            var newColumns = Object.keys(response.data[0]);
+
+                            if (JSON.stringify(columns) !== JSON.stringify(newColumns)) {
+                                columns = newColumns;
+
+
+                                var header = $('#tableHeader');
+                                var filterRow = $('#filterRow');
+                                header.empty();
+                                filterRow.empty();
+
+
+                                columns.forEach(function (column) {
+                                    header.append('<th class="sortable" onclick="onHeaderClick(event)">' + column + '</th>');
+                                });
+
+
+                                columns.forEach(function (column) {
+                                    filterRow.append('<th><input type="text" class="form-control filter-input" data-column="' + column + '" placeholder="Filter ' + column + '"></th>');
+                                });
+                            }
+
+
+                            response.data.forEach(function (row) {
+                                var rowHtml = '<tr>';
+                                columns.forEach(function (column) {
+                                    rowHtml += '<td>' + row[column] + '</td>';
+                                });
+                                rowHtml += '</tr>';
+                                body.append(rowHtml);
+                            });
+                        } else {
+                            var body = $('#tableBody');
+                            body.empty();
+                            body.append('<tr><td colspan="' + columns.length + '">No data available</td></tr>');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching data:', error);
+                    }
+                });
+            }
+
+            function getFilters() {
+                var filters = [];
+                $('.filter-input').each(function () {
+                    var column = $(this).data('column');
+                    var value = $(this).val();
+                    if (value) {
+                        filters.push({ column: column, value: value });
+                    }
+                });
+                return filters;
+            }
+
+            function goToPage(page) {
+                currentPage = page;
+                fetchData(currentPage, pageSize);
+            }
+
+            fetchData(currentPage, pageSize);
+
+
+            $('#firstPage').click(function () {
+                goToPage(1);
+            });
+
+            $('#prevPage').click(function () {
+                if (currentPage > 1) {
+                    goToPage(currentPage - 1);
+                }
+            });
+
+            $('#nextPage').click(function () {
+                if (currentPage * pageSize < totalRecords) {
+                    goToPage(currentPage + 1);
+                }
+            });
+
+            $('#lastPage').click(function () {
+                goToPage(Math.ceil(totalRecords / pageSize));
+            });
+
+
+            $(document).on('input', '.filter-input', function () {
+                goToPage(1);
+            });
+        });
+        
+
+    </script>
+</body>
