@@ -5,6 +5,8 @@
         public class Spname
         {
             public string Title { get; set; }
+
+            public string DateTime { get; set; }
         }
 
         public class Availability
