@@ -1,6 +1,6 @@
 ﻿namespace Claysys_SQLTask.Models
 {
-    public class ProcedureIndexRelation
+    public class ProcedureRelation
     {
         public int Id { get; set; }
 
@@ -20,7 +20,9 @@
 
         public string SPName { get; set; }
 
-        public string IndexIds { get; set; }
+        public int IndexID { get; set; }
+
+        public string IndexName { get; set; }
 
         public bool IsActive { get; set; }
 
@@ -29,5 +31,8 @@
         public string TableName { get; set; }
 
         public IEnumerable<int> SelectedIndexIds { get; set; }
+        public string TableIds { get; set; }
+
+        public IEnumerable<int> SelectedTableIds { get; set; }
     }
 }

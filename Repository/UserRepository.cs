@@ -109,7 +109,31 @@ namespace Claysys_SQLTask.Repository
             }
             return tables;
         }
-
+        public List<Indexes> GetIndexes(int clientId, int projectId, int databaseId)
+        {
+            var indexes = new List<Indexes>();
+            using (var connection = new SqlConnection(_connectionString))
+            {
+                var command = new SqlCommand("SELECT IndexID, IndexName FROM Indexes WHERE ClientID = @ClientID AND ProjectID = @ProjectID AND DataBaseID = @DataBaseID AND  IsActive = 1", connection);
+                command.Parameters.AddWithValue("@ClientID", clientId);
+                command.Parameters.AddWithValue("@ProjectID", projectId);
+                command.Parameters.AddWithValue("@DataBaseID", databaseId);
+                connection.Open();
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        indexes.Add(new Indexes
+                        {
+                            IndexID = (long)reader["IndexID"],
+                            IndexName = reader["IndexName"].ToString()
+                        });
+                    }
+                }
+            }
+            return indexes;
+        }
+        
         public bool InsertDatabase(Database database)
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
@@ -303,12 +327,12 @@ namespace Claysys_SQLTask.Repository
             return spReviews;
         }
 
-        public ProcedureTableRelation GetProcedureTableRelationById(int SPID)
+        public ProcedureRelation GetProcedureRelationById(int SPID)
         {
-            ProcedureTableRelation procedureTableRelation = new ProcedureTableRelation();
+            ProcedureRelation procedureRelation = new ProcedureRelation();
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                using (SqlCommand cmd = new SqlCommand("SpS_ProcedureTableRelationById", con))
+                using (SqlCommand cmd = new SqlCommand("SpS_ProcedureRelationById", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@SPID", SPID);
@@ -316,36 +340,110 @@ namespace Claysys_SQLTask.Repository
                     SqlDataReader reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        procedureTableRelation.SPID = Convert.ToInt32(reader["SPID"]);
-                        procedureTableRelation.SPName = reader["SPName"].ToString();
-                        procedureTableRelation.ClientID = Convert.ToInt32(reader["ClientID"]);
-                        procedureTableRelation.ClientName = reader["ClientName"].ToString();
-                        procedureTableRelation.ProjectID = Convert.ToInt32(reader["ProjectID"]);
-                        procedureTableRelation.ProjectName = reader["ProjectName"].ToString();
-                        procedureTableRelation.DataBaseID = Convert.ToInt32(reader["DataBaseID"]);
-                        procedureTableRelation.DataBaseName = reader["DatabaseName"].ToString();
+                        procedureRelation.SPID = Convert.ToInt32(reader["SPID"]);
+                        procedureRelation.SPName = reader["SPName"].ToString();
+                        procedureRelation.ClientID = Convert.ToInt32(reader["ClientID"]);
+                        procedureRelation.ClientName = reader["ClientName"].ToString();
+                        procedureRelation.ProjectID = Convert.ToInt32(reader["ProjectID"]);
+                        procedureRelation.ProjectName = reader["ProjectName"].ToString();
+                        procedureRelation.DataBaseID = Convert.ToInt32(reader["DataBaseID"]);
+                        procedureRelation.DataBaseName = reader["DatabaseName"].ToString();
 
                     }
                     con.Close();
                 }
             }
-            return procedureTableRelation;
+            return procedureRelation;
         }
         
-        public bool InsertProcedureTableRelation(ProcedureTableRelation procedureTableRelation,int CreatedBy)
+        public bool InsertProcedureTableRelation(ProcedureRelation procedureRelation, int CreatedBy)
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
                 con.Open();
                 SqlCommand cmd = new SqlCommand("Spi_ProcedureTableRelation", con);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@SPID", procedureTableRelation.SPID);
-                cmd.Parameters.AddWithValue("@TableID", procedureTableRelation.TableID);
+                cmd.Parameters.AddWithValue("@SPID", procedureRelation.SPID);
+                cmd.Parameters.AddWithValue("@TableID", procedureRelation.TableID);
                 cmd.Parameters.AddWithValue("@CreatedBy", CreatedBy);
                 int result = cmd.ExecuteNonQuery();
                 return result > 0;
             }
         }
 
+        public bool InsertProcedureIndexRelation(ProcedureRelation procedureRelation, int CreatedBy)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Spi_ProcedureIndexRelation", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@SPID", procedureRelation.SPID);
+                cmd.Parameters.AddWithValue("@IndexID", procedureRelation.IndexID);
+                cmd.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                int result = cmd.ExecuteNonQuery();
+                return result > 0;
+            }
+        }
+
+        public ProcedureRelation GetProcedureTableRelationById(int SPID)
+        {
+            ProcedureRelation procedureRelation = new ProcedureRelation();
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand("Sps_ProcedureTableRelation", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@SPID", SPID);
+                    con.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    { 
+                        procedureRelation.SPName = reader["SPName"].ToString();
+                        procedureRelation.TableName = reader["TableName"].ToString();
+                    }
+                    con.Close();
+                }
+            }
+            return procedureRelation;
+        }
+
+        public ProcedureRelation GetProcedureIndexRelationById(int SPID)
+        {
+            ProcedureRelation procedureRelation = new ProcedureRelation();
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand("Sps_ProcedureIndexRelation", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@SPID", SPID);
+                    con.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        procedureRelation.SPName = reader["SPName"].ToString();
+                        procedureRelation.IndexName = reader["IndexName"].ToString();
+                    }
+                    con.Close();
+                }
+            }
+            return procedureRelation;
+        }
+
+        public bool UpdateReviewChanges(int id,string fieldName,bool value,int CreatedBy)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Spu_ReviewMove", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@ReviewID", id);
+                cmd.Parameters.AddWithValue("@DataBaseName", fieldName);
+                cmd.Parameters.AddWithValue("@Status", value);
+                cmd.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                int result = cmd.ExecuteNonQuery();
+                return result > 0;
+            }
+        }
     }
 }
