@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace Claysys_SQLTask.Controllers
 {
-    public class SQLController : Controller
+    public class SQLController : Controller 
     {
         private readonly IConfiguration _configuration;
         private readonly IHttpContextAccessor _httpContextAccessor;
