@@ -67,6 +67,7 @@ namespace Claysys_SQLTask.Controllers
         }
 
         [HttpPost]
+        [Route("SQL/Table")]
         public IActionResult AddTable(Tables table)
         {
             UserRepository userRepo = new UserRepository(_configuration);
@@ -90,6 +91,7 @@ namespace Claysys_SQLTask.Controllers
         }
 
         [HttpPost]
+        [Route("SQL/Procedure")]
         public IActionResult AddProcedure(Procedures procedure)
         {
             UserRepository userRepo = new UserRepository(_configuration);
@@ -186,6 +188,13 @@ namespace Claysys_SQLTask.Controllers
             return Json(tables);
         }
 
+        [HttpPost]
+        public JsonResult GetIndexes(int clientId, int projectId, int databaseId)
+        {
+            UserRepository userRepo = new UserRepository(_configuration);
+            var tables = userRepo.GetIndexes(clientId, projectId, databaseId);
+            return Json(tables);
+        }
         [HttpGet]
         public IActionResult ProcedureList()
         {
@@ -224,15 +233,93 @@ namespace Claysys_SQLTask.Controllers
         [HttpGet]
         public IActionResult ReviewList(int SPID)
         {
+            //UserRepository userRepo = new UserRepository(_configuration);
+            //List<SpReview> spReviews = new List<SpReview>();
+            //spReviews = userRepo.GetReviewsById(SPID);
+            //SpReview spReview = new SpReview();
+            //spReview = userRepo.GetProcedureById(SPID);
+            //ViewBag.SPName = spReview.SPName;
+            //return View(spReviews);
             UserRepository userRepo = new UserRepository(_configuration);
             List<SpReview> spReviews = new List<SpReview>();
             spReviews = userRepo.GetReviewsById(SPID);
-            SpReview spReview = new SpReview();
-            spReview = userRepo.GetProcedureById(SPID);
-            ViewBag.SPName = spReview.SPName;
+            ProcedureRelation procedureTableRelation = new ProcedureRelation();
+            procedureTableRelation = userRepo.GetProcedureTableRelationById(SPID);
+            ProcedureRelation procedureIndexRelation = new ProcedureRelation();
+            procedureIndexRelation = userRepo.GetProcedureIndexRelationById(SPID);
+            ViewBag.SPName = procedureTableRelation.SPName;
+            ViewBag.TableName = procedureTableRelation.TableName;
+            ViewBag.IndexName = procedureIndexRelation.IndexName;
             return View(spReviews);
         }
+        [HttpGet]
+        public IActionResult ProcedureTableRelation(int SPID)
+        {
+            UserRepository userRepo = new UserRepository(_configuration);
+            ProcedureRelation procedureRelation = new ProcedureRelation();
+            procedureRelation = userRepo.GetProcedureRelationById(SPID);
+            ViewBag.Tables = userRepo.GetTables(procedureRelation.ClientID, procedureRelation.ProjectID, procedureRelation.DataBaseID);
+            ViewBag.ClientName = procedureRelation.ClientName;
+            ViewBag.ProjectName = procedureRelation.ProjectName;
+            ViewBag.SPID = procedureRelation.SPID;
+            ViewBag.SPName = procedureRelation.SPName;
+            ViewBag.DatabaseName = procedureRelation.DataBaseName;
+            return View();
+        }
+        [HttpPost]
+        public IActionResult ProcedureTableRelation(ProcedureRelation procedureRelation)
+        {
+            UserRepository userRepo = new UserRepository(_configuration);
+            var CreatedBy = (int)_httpContextAccessor.HttpContext.Session.GetInt32("EmpId");
+            bool result = userRepo.InsertProcedureTableRelation(procedureRelation, CreatedBy);
+            if (result)
+            {
+                return RedirectToAction("Home");
+            }
+            return RedirectToAction("Home");
+        }
 
+        [HttpGet]
+        public IActionResult ProcedureIndexRelation(int SPID)
+        {
+            UserRepository userRepo = new UserRepository(_configuration);
+            ProcedureRelation procedureRelation = new ProcedureRelation();
+            procedureRelation = userRepo.GetProcedureRelationById(SPID);
+            ViewBag.Indexes = userRepo.GetIndexes(procedureRelation.ClientID, procedureRelation.ProjectID, procedureRelation.DataBaseID);
+            ViewBag.ClientName = procedureRelation.ClientName;
+            ViewBag.ProjectName = procedureRelation.ProjectName;
+            ViewBag.SPID = procedureRelation.SPID;
+            ViewBag.SPName = procedureRelation.SPName;
+            ViewBag.DatabaseName = procedureRelation.DataBaseName;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ProcedureIndexRelation(ProcedureRelation procedureRelation)
+        {
+            UserRepository userRepo = new UserRepository(_configuration);
+            var CreatedBy = (int)_httpContextAccessor.HttpContext.Session.GetInt32("EmpId");
+            bool result = userRepo.InsertProcedureIndexRelation(procedureRelation, CreatedBy);
+            if (result)
+            {
+                return RedirectToAction("Home");
+            }
+            return RedirectToAction("Home");
+        }
+
+        [HttpPost]
+        public IActionResult ReviewMove(int id, string fieldName, bool value)
+        {
+            UserRepository userRepo = new UserRepository(_configuration);
+            var CreatedBy = (int)_httpContextAccessor.HttpContext.Session.GetInt32("EmpId");
+            bool result = userRepo.UpdateReviewChanges(id, fieldName, value, CreatedBy);
+            if (result)
+            {
+                return Ok();
+            }
+            return NotFound();
+
+        }
         public async Task<IActionResult> GetFilteredData(string filters, int page = 1, int pageSize = 5)
         {
 
