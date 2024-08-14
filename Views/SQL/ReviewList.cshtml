@@ -1,16 +1,54 @@
-﻿@model IEnumerable<Claysys_SQLTask.Models.SpReview>
+﻿ @model IEnumerable<Claysys_SQLTask.Models.SpReview>
 
 @{
     ViewData["Title"] = "ReviewList";
     Layout = "~/Views/Shared/_UserLayout.cshtml";
+    var Tablevalues = ViewBag.TableName != null ? ViewBag.TableName.ToString().Split(',') : null;
+    var Indexvalues = ViewBag.IndexName != null ? ViewBag.IndexName.ToString().Split(',') : null;
+
 }
-
 <h3 class="text-center mb-3">@ViewBag.SPName</h3>
+<div class="container mt-4">
+    <div class="row mb-2">
+        <div class="col-md-6">
+            @if (Tablevalues != null)
+            {
+                <h5 class="font-weight-bold mb-1">Relevant Tables:</h5>
+                <ol class="list-group">
 
-<!-- Include Bootstrap CSS if not already included -->
+                    @for (int i = 0; i < Tablevalues.Length; i++)
+                    {
+                        <li class="list-group-item custom-list p-1">@Tablevalues[i]</li>
+                    }
+
+                </ol>
+            }
+        </div>
+
+        <div class="col-md-6">
+            @if (Indexvalues != null)
+            {
+                <h5 class="font-weight-bold mb-1 text-right">Relevant Indexes:</h5>
+                <ol class="list-group">
+
+                    @for (int i = 0; i < Indexvalues.Length; i++)
+                    {
+                        <li class="list-group-item custom-list text-right p-1">@Indexvalues[i]</li>
+                    }
+
+                </ol>
+            }
+        </div>
+    </div>
+</div>
+
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
+    .custom-list {
+        border: none;
+    }
+
     .card-header {
         background-color: #f8f9fa;
     }
@@ -69,30 +107,30 @@
         </div>
         <div class="card-footer py-1">
             <div class="row">
-            <div class="col-md-2">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" data-id="@item.Id" @(item.IsMovedQA ? "checked" : "") />
-                <label class="form-check-label">
-                    QA
-                </label>
-            </div>
-            </div>
-            <div class="col-md-2">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" data-id="@item.Id" @(item.IsMovedUAT ? "checked" : "") />
-                <label class="form-check-label">
-                    UAT
-                </label>
-            </div>
-            </div>
-            <div class="col-md-2">
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" data-id="@item.Id" @(item.ISMovedPROD ? "checked" : "") />
-                <label class="form-check-label">
-                    PROD
-                </label>
-            </div>
-            </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" name="QA" type="checkbox" data-id="@item.Id" @(item.IsMovedQA ? "checked" : "") />
+                        <label class="form-check-label">
+                            QA
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" name="UAT" type="checkbox" data-id="@item.Id" @(item.IsMovedUAT ? "checked" : "") />
+                        <label class="form-check-label">
+                            UAT
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check">
+                        <input class="form-check-input" name="PROD" type="checkbox" data-id="@item.Id" @(item.ISMovedPROD ? "checked" : "") />
+                        <label class="form-check-label">
+                            PROD
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -109,7 +147,7 @@
             var isChecked = checkbox.is(':checked');
 
             $.ajax({
-                url: '@Url.Action("UpdateField", "SQL")', 
+                url: '@Url.Action("ReviewMove", "SQL")',
                 type: 'POST',
                 data: {
                     id: id,
