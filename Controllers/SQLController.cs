@@ -247,6 +247,7 @@ namespace Claysys_SQLTask.Controllers
             procedureTableRelation = userRepo.GetProcedureTableRelationById(SPID);
             ProcedureRelation procedureIndexRelation = new ProcedureRelation();
             procedureIndexRelation = userRepo.GetProcedureIndexRelationById(SPID);
+       
             ViewBag.SPName = procedureTableRelation.SPName;
             ViewBag.TableName = procedureTableRelation.TableName;
             ViewBag.IndexName = procedureIndexRelation.IndexName;
@@ -309,7 +310,8 @@ namespace Claysys_SQLTask.Controllers
 
         [HttpPost]
         public IActionResult ReviewMove(int id, string fieldName, bool value)
-        {
+        {   
+
             UserRepository userRepo = new UserRepository(_configuration);
             var CreatedBy = (int)_httpContextAccessor.HttpContext.Session.GetInt32("EmpId");
             bool result = userRepo.UpdateReviewChanges(id, fieldName, value, CreatedBy);
