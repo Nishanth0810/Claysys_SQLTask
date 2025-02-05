@@ -21,11 +21,12 @@
                         <option value="@client.ClientID">@client.ClientName</option>
                     }
                 </select>
+                <span asp-validation-for="ClientID" class="text-danger ClientId-Validation"></span>
             </div>
             <div class="form-group mt-2">
                 <label asp-for="ProjectName" class="control-label">Project name</label>
                 <input asp-for="ProjectName" class="form-control" />
-                <span asp-validation-for="ProjectName" class="text-danger"></span>
+                <span asp-validation-for="ProjectName" class="text-danger ProjectName-validation"></span>
             </div>
             <div class="form-group mt-3">
                 <input type="submit" style="background-color:#16a358;color:white" value="Create" class="btn btn-block" />
@@ -190,3 +191,40 @@
 
     </script>
 </body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.querySelector("form");
+        const clientSelect = document.getElementById("client");
+        const projectNameInput = document.querySelector("input[name='ProjectName']");
+        const clientIdValidation = document.querySelector(".ClientId-Validation");
+        const projectNameValidation = document.querySelector(".ProjectName-validation");
+
+        const validationSummary = document.querySelector(".text-danger");
+
+        form.addEventListener("submit", function (event) {
+
+            validationSummary.textContent = "";
+            clientIdValidation.textContent = "";
+            projectNameValidation.textContent = "";
+
+            let hasErrors = false;
+
+            if (clientSelect.value === "") {
+                clientIdValidation.textContent += "Please select a client.\n";
+                hasErrors = true;
+            }
+
+ 
+            if (projectNameInput.value.trim() === "") {
+                projectNameValidation.textContent += "Project name is required.\n";
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                event.preventDefault();
+            }
+        });
+    });
+
+</script>

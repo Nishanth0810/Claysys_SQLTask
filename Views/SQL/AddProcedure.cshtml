@@ -15,10 +15,10 @@
 
 </head>
 
-<h3 class="text-center">Create Procedure</h3>
+<h3 class="text-center">Procedure</h3>
 
-<div class="container">
-        <form asp-action="AddProcedure">
+<div class="container-fluid">
+        <form id="form" asp-action="AddProcedure">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row mt-3">
         <div class="col-md-4">
@@ -31,6 +31,7 @@
                         <option value="@client.ClientID">@client.ClientName</option>
                     }
                 </select>
+                <span asp-validation-for="ClientID" class="text-danger ClientID-Validation"></span>
             </div>
         </div>
         <div class="col-md-4">
@@ -39,6 +40,7 @@
                 <select id="project" asp-for="ProjectID" class="form-control" disabled>
                     <option value="">Select Project</option>
                 </select>
+                <span asp-validation-for="ProjectID" class="text-danger ProjectID-Validation"></span>
             </div>
         </div>
         <div class="col-md-4">
@@ -47,14 +49,16 @@
                 <select id="database" asp-for="DataBaseID" class="form-control" disabled>
                     <option value="">Select Database</option>
                 </select>
+                <span asp-validation-for="DataBaseID" class="text-danger DataBaseID-Validation"></span>
             </div>
         </div>
         </div>
-        <div class="row mt-4">
+        <div class="row mt-2">
         <div class="col-md-4">
             <div class="form-group">
                 <label for="SPName">Procedure name</label>
                 <input asp-for="SPName" class="form-control" />
+                 <span asp-validation-for="SPName" class="text-danger SPName-Validation"></span>
             </div>
         </div>
         <div class="col-md-4">
@@ -64,17 +68,19 @@
             </div>
         </div>
         </div>
-            <div class="form-group  mt-4">
+        <div>
+            <div class="form-group  mt-2">
                 <input type="submit" style="background-color:#16a358;color:white" value="Create" class="btn" />
             </div>
+        </div>
         </form>
-    </div>
+    
 </div>
 
 
 <body>
     <div class="container mt-4">
-        <table id="dataTable" class="table table-bordered">
+        <table id="dataTable" class="table table-bordered table-responsive">
             <thead>
                 <tr id="tableHeader"></tr>
                 <tr id="filterRow"></tr>
@@ -281,3 +287,49 @@
         });
     </script>
 }
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById('form');
+        const client = document.getElementById('client');
+        const project = document.getElementById('project');
+        const database = document.getElementById('database');
+        const SPName = document.querySelector('input[name="SPName"]');
+        const clientIdValidation = document.querySelector('.ClientID-Validation');
+        const projectIdValidation = document.querySelector('.ProjectID-Validation');
+        const dataBaseIdValidation = document.querySelector('.DataBaseID-Validation');
+        const SPNameValidation = document.querySelector('.SPName-Validation');
+        form.addEventListener("submit", function (event) {
+            let hasErrors = false;
+            clientIdValidation.textContent = '';
+            projectIdValidation.textContent = '';
+            dataBaseIdValidation.textContent = '';
+            SPNameValidation.textContent = '';
+            if (client.value === '') {
+                clientIdValidation.textContent = 'Please select a client';
+                hasErrors = true;
+
+            }
+            if (project.value === '') {
+                projectIdValidation.textContent = 'Please select a project';
+                hasErrors = true;
+
+            }
+            if (database.value === '') {
+                dataBaseIdValidation.textContent = 'please select a database';
+                hasErrors = true;
+
+            }
+            if (SPName.value.trim() === '') {
+                SPNameValidation.textContent = 'Procedure name is required';
+                hasErrors = true;
+            }
+            if (hasErrors) {
+                event.preventDefault();
+            }
+
+
+        });
+
+    });
+</script>

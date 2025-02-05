@@ -11,6 +11,7 @@
 
         public class Availability
         {
+            public int EmpId { get; set; }
             public string Name { get; set; }
             public string Priority { get; set; }
         }

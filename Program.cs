@@ -12,7 +12,7 @@ builder.Services.AddSession(options =>
 {
     // Configure session options
     options.Cookie.Name = ".YourApp.Session";
-    options.IdleTimeout = TimeSpan.FromSeconds(3600); // Adjust timeout as needed
+    options.IdleTimeout = TimeSpan.FromMinutes(30);  // Adjust timeout as needed
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });

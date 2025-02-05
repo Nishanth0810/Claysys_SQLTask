@@ -7,9 +7,9 @@
 <link href="~/css/gridascdesc.css" rel="stylesheet" />
 <script src="~/js/listdetails.js" type="text/javascript"></script>
 
-<h3 class="text-center">Create table</h3>
+<h3 class="text-center"> Table</h3>
 <div class="container mt-3">
-        <form asp-action="AddTable">
+        <form id="form" asp-action="AddTable">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row">
         <div class="col-md-4">
@@ -22,6 +22,7 @@
                         <option value="@client.ClientID">@client.ClientName</option>
                     }
                 </select>
+                <span asp-validation-for="ClientID" class="text-danger ClientID-Validation"></span>
             </div>
         </div>
          <div class="col-md-4">
@@ -30,6 +31,7 @@
                 <select id="project" asp-for="ProjectID" class="form-control" disabled>
                     <option value="">Select Project</option>
                 </select>
+                <span asp-validation-for="ProjectID" class="text-danger ProjectID-Validation"></span>
             </div>
         </div>
 
@@ -39,6 +41,7 @@
                 <select id="database" asp-for="DataBaseID" class="form-control" disabled>
                     <option value="">Select Database</option>
                 </select>
+                <span asp-validation-for="DataBaseID" class="text-danger DataBaseID-Validation"></span>
             </div>
         </div>
         </div>
@@ -46,7 +49,8 @@
         <div class="col-md-4">
             <div class="form-group">
                 <label for="TableName">Table name</label>
-                <input asp-for="TableName" class="form-control" />
+                    <input asp-for="TableName" class="form-control" name="TableName" />
+                <span asp-validation-for="TableName" class="text-danger TableName-Validation"></span>
             </div>
         </div>
 
@@ -261,3 +265,52 @@
         });
     </script>
 </body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById('form');
+        const client = document.getElementById('client');
+        const project = document.getElementById('project');
+        const database = document.getElementById('database');
+        const tableName = document.querySelector('input[name="TableName"]');
+        const clientIdValidation = document.querySelector('.ClientID-Validation');
+        const projectIdValidation = document.querySelector('.ProjectID-Validation');
+        const dataBaseIdValidation = document.querySelector('.DataBaseID-Validation');
+        const tableNameValidation = document.querySelector('.TableName-Validation');
+        form.addEventListener("submit", function (event) {
+            let hasErrors = false;
+            clientIdValidation.textContent = '';
+            projectIdValidation.textContent = '';
+            dataBaseIdValidation.textContent = '';
+            tableNameValidation.textContent = '';
+            if (client.value === '') {
+                clientIdValidation.textContent = 'Please select a client';
+                hasErrors = true;
+    
+            }
+            if (project.value === '') {
+                projectIdValidation.textContent = 'Please select a project';
+                hasErrors = true;
+
+            }
+            if (database.value === '') {
+                dataBaseIdValidation.textContent = 'please select a database';
+                hasErrors = true;
+
+            }
+            if (tableName.value.trim() === '') {
+                tableNameValidation.textContent = 'Table name is required';
+                hasErrors = true;
+            }
+            if (hasErrors) {
+                event.preventDefault();
+            }
+
+
+        });
+
+    });
+
+
+
+</script>

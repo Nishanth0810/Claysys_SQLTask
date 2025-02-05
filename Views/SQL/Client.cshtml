@@ -11,12 +11,12 @@
 
 <div class="row mt-3">
     <div class="col-md-4">
-        <form asp-action="Client">
+        <form id="clientForm" asp-action="Client">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="ClientName" class="control-label">Client name</label>
-                <input asp-for="ClientName" class="form-control" />
-                <span asp-validation-for="ClientName" class="text-danger"></span>
+                <input asp-for="ClientName" class="form-control" id="ClientName" />
+                <span asp-validation-for="ClientName" class="text-danger clientName-Validation"></span>
             </div>
             <div class="form-group mt-3">
                 <input type="submit" style="background-color:#16a358;color:white" value="Create" class="btn btn-block" />
@@ -180,3 +180,21 @@
     </script>
 </body>
 
+
+<script>
+    document.getElementById('clientForm').addEventListener('submit', function (event) {
+        var clientName = document.getElementById('ClientName').value;
+        var clientNameValidation = document.querySelector('.clientName-Validation');
+        var hasError = false;
+        clientNameValidation.textContent = "";
+        if (clientName.trim() === '') {
+            clientNameValidation.textContent += 'Client name is required.\n';
+            hasError = true;
+        }
+
+        if (hasError) {
+            event.preventDefault(); 
+            document.getElementById('ClientName').focus(); 
+        }
+    });
+</script>

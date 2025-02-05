@@ -4,6 +4,7 @@ using Microsoft.Build.Evaluation;
 using Microsoft.CodeAnalysis;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Buffers;
 using System.Configuration;
 using System.Data;
@@ -1150,6 +1151,41 @@ namespace Claysys_SQLTask.Repository
                 int result = cmd.ExecuteNonQuery();
                 return result > 0;
             }
+        }
+
+        public bool UpdatePriorityStatus(string priority, int CreatedBy)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                con.Open();
+                SqlCommand cmd = new SqlCommand("Spu_PriorityStatus", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Priority", priority);
+                cmd.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                int result = cmd.ExecuteNonQuery();
+                return result > 0;
+            }
+        }
+
+        public Availability GetStatusPriority(int CreatedBy)
+        {
+            Availability availability= new Availability();
+            using (SqlConnection con = new SqlConnection(_connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand("Sps_CurrentPriorityStatus", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@CreatedBy", CreatedBy);
+                    con.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        availability.Priority = reader["PriorityType"].ToString();                       
+                    }
+                    con.Close();
+                }
+            }
+            return availability;
         }
     }
 }

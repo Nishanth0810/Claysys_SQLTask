@@ -8,6 +8,7 @@ using System.Data;
 using System.Text;
 using System.Configuration;
 using Newtonsoft.Json;
+using static Claysys_SQLTask.Models.HomeContentModel;
 
 namespace Claysys_SQLTask.Controllers
 {
@@ -26,16 +27,28 @@ namespace Claysys_SQLTask.Controllers
         [Route("Home")]
         public IActionResult Home()
         {
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") == null)
+            {
+                return RedirectToAction("SessionExpired", "Login");
+            }
             int CreatedBy = _httpContextAccessor.HttpContext.Session.GetInt32("EmpId") ?? 2106;
             var data = _userRepository.GetHomeModelByUser(CreatedBy);
+            Availability availability = new Availability();
+            availability = _userRepository.GetStatusPriority(CreatedBy);
+            ViewBag.Priority = availability.Priority;
             return View(data);
         }
         [HttpGet]
         public IActionResult Database()
         {
-            UserRepository userRepo = new UserRepository(_configuration);
-            ViewBag.Clients = userRepo.GetClients();
-            return View();
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                UserRepository userRepo = new UserRepository(_configuration);
+                ViewBag.Clients = userRepo.GetClients();
+                return View();
+            }
+            return RedirectToAction("SessionExpired", "Login");
+
         }
 
         [HttpPost]
@@ -54,16 +67,16 @@ namespace Claysys_SQLTask.Controllers
         [Route("SQL/Table")]
         public IActionResult AddTable()
         {
-            //if (_httpContextAccessor.HttpContext.Session.GetString("userName") != null)
-            //{
-            //    UserRepository userRepo = new UserRepository(_configuration);
-            //    ViewBag.Clients = userRepo.GetClients();
-            //    return View();
-            //}
-            //return RedirectToAction("Login", "Login");
-            UserRepository userRepo = new UserRepository(_configuration);
-            ViewBag.Clients = userRepo.GetClients();
-            return View();
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                UserRepository userRepo = new UserRepository(_configuration);
+                ViewBag.Clients = userRepo.GetClients();
+                return View();
+            }
+            return RedirectToAction("SessionExpired", "Login");
+            //UserRepository userRepo = new UserRepository(_configuration);
+            //ViewBag.Clients = userRepo.GetClients();
+            //return View();
         }
 
         [HttpPost]
@@ -85,9 +98,14 @@ namespace Claysys_SQLTask.Controllers
         [Route("SQL/Procedure")]
         public IActionResult AddProcedure()
         {
-            UserRepository userRepo = new UserRepository(_configuration);
-            ViewBag.Clients = userRepo.GetClients();
-            return View();
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                UserRepository userRepo = new UserRepository(_configuration);
+                ViewBag.Clients = userRepo.GetClients();
+                return View();
+            }
+            return RedirectToAction("SessionExpired", "Login");
+
         }
 
         [HttpPost]
@@ -108,12 +126,17 @@ namespace Claysys_SQLTask.Controllers
         [Route("SQL/Index")]
         public IActionResult AddIndex()
         {
-            UserRepository userRepo = new UserRepository(_configuration);
-            ViewBag.Clients = userRepo.GetClients();
-            return View();
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                UserRepository userRepo = new UserRepository(_configuration);
+                ViewBag.Clients = userRepo.GetClients();
+                return View();
+            }
+            return RedirectToAction("SessionExpired", "Login");
         }
 
         [HttpPost]
+        [Route("SQL/Index")]
         public IActionResult AddIndex(Indexes index)
         {
             UserRepository userRepo = new UserRepository(_configuration);
@@ -129,7 +152,11 @@ namespace Claysys_SQLTask.Controllers
         [HttpGet]
         public IActionResult Client()
         {
-            return View();
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                return View();
+            }
+            return RedirectToAction("SessionExpired", "Login");
         }
 
         [HttpPost]
@@ -147,9 +174,13 @@ namespace Claysys_SQLTask.Controllers
         [HttpGet]
         public IActionResult Project()
         {
-            UserRepository userRepo = new UserRepository(_configuration);
-            ViewBag.Clients = userRepo.GetClients();
-            return View();
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                UserRepository userRepo = new UserRepository(_configuration);
+                ViewBag.Clients = userRepo.GetClients();
+                return View();
+            }
+            return RedirectToAction("SessionExpired", "Login");
         }
 
         [HttpPost]
@@ -198,24 +229,34 @@ namespace Claysys_SQLTask.Controllers
         [HttpGet]
         public IActionResult ProcedureList()
         {
-            List<Procedures> procedures = new List<Procedures>();
-            UserRepository userRepo = new UserRepository(_configuration);
-            procedures = userRepo.GetProcedures();
-            return View(procedures);
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                List<Procedures> procedures = new List<Procedures>();
+                UserRepository userRepo = new UserRepository(_configuration);
+                procedures = userRepo.GetProcedures();
+                return View(procedures);
+            }
+            return RedirectToAction("SessionExpired", "Login");
+
         }
 
         [HttpGet]
         public IActionResult ProcedureReview(int SPID)
         {
-            UserRepository userRepo = new UserRepository(_configuration);
-            SpReview spReview = new SpReview();
-            spReview = userRepo.GetProcedureById(SPID);
-            ViewBag.ClientName = spReview.ClientName;
-            ViewBag.ProjectName = spReview.ProjectName;
-            ViewBag.SPID = spReview.SPID;
-            ViewBag.SPName = spReview.SPName;
-            ViewBag.DatabaseName = spReview.DatabaseName;
-            return View();
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                UserRepository userRepo = new UserRepository(_configuration);
+                SpReview spReview = new SpReview();
+                spReview = userRepo.GetProcedureById(SPID);
+                ViewBag.ClientName = spReview.ClientName;
+                ViewBag.ProjectName = spReview.ProjectName;
+                ViewBag.SPID = spReview.SPID;
+                ViewBag.SPName = spReview.SPName;
+                ViewBag.DatabaseName = spReview.DatabaseName;
+                return View();
+            }
+            return RedirectToAction("SessionExpired", "Login");
+
         }
         [HttpPost]
         public IActionResult ProcedureReview(SpReview spReview)
@@ -240,32 +281,44 @@ namespace Claysys_SQLTask.Controllers
             //spReview = userRepo.GetProcedureById(SPID);
             //ViewBag.SPName = spReview.SPName;
             //return View(spReviews);
-            UserRepository userRepo = new UserRepository(_configuration);
-            List<SpReview> spReviews = new List<SpReview>();
-            spReviews = userRepo.GetReviewsById(SPID);
-            ProcedureRelation procedureTableRelation = new ProcedureRelation();
-            procedureTableRelation = userRepo.GetProcedureTableRelationById(SPID);
-            ProcedureRelation procedureIndexRelation = new ProcedureRelation();
-            procedureIndexRelation = userRepo.GetProcedureIndexRelationById(SPID);
-       
-            ViewBag.SPName = procedureTableRelation.SPName;
-            ViewBag.TableName = procedureTableRelation.TableName;
-            ViewBag.IndexName = procedureIndexRelation.IndexName;
-            return View(spReviews);
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                UserRepository userRepo = new UserRepository(_configuration);
+                List<SpReview> spReviews = new List<SpReview>();
+                spReviews = userRepo.GetReviewsById(SPID);
+                ProcedureRelation procedureTableRelation = new ProcedureRelation();
+                procedureTableRelation = userRepo.GetProcedureTableRelationById(SPID);
+                ProcedureRelation procedureIndexRelation = new ProcedureRelation();
+                procedureIndexRelation = userRepo.GetProcedureIndexRelationById(SPID);
+
+                //ViewBag.SPName = procedureTableRelation.SPName;
+                ViewBag.SPName = spReviews.Any() ? spReviews[0].SPName : "No items";
+                ViewBag.TableName = procedureTableRelation.TableName;
+                ViewBag.IndexName = procedureIndexRelation.IndexName;
+                return View(spReviews);
+            }
+            return RedirectToAction("SessionExpired", "Login");
+
+
         }
         [HttpGet]
         public IActionResult ProcedureTableRelation(int SPID)
         {
-            UserRepository userRepo = new UserRepository(_configuration);
-            ProcedureRelation procedureRelation = new ProcedureRelation();
-            procedureRelation = userRepo.GetProcedureRelationById(SPID);
-            ViewBag.Tables = userRepo.GetTables(procedureRelation.ClientID, procedureRelation.ProjectID, procedureRelation.DataBaseID);
-            ViewBag.ClientName = procedureRelation.ClientName;
-            ViewBag.ProjectName = procedureRelation.ProjectName;
-            ViewBag.SPID = procedureRelation.SPID;
-            ViewBag.SPName = procedureRelation.SPName;
-            ViewBag.DatabaseName = procedureRelation.DataBaseName;
-            return View();
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                UserRepository userRepo = new UserRepository(_configuration);
+                ProcedureRelation procedureRelation = new ProcedureRelation();
+                procedureRelation = userRepo.GetProcedureRelationById(SPID);
+                ViewBag.Tables = userRepo.GetTables(procedureRelation.ClientID, procedureRelation.ProjectID, procedureRelation.DataBaseID);
+                ViewBag.ClientName = procedureRelation.ClientName;
+                ViewBag.ProjectName = procedureRelation.ProjectName;
+                ViewBag.SPID = procedureRelation.SPID;
+                ViewBag.SPName = procedureRelation.SPName;
+                ViewBag.DatabaseName = procedureRelation.DataBaseName;
+                return View();
+            }
+            return RedirectToAction("SessionExpired", "Login");
+
         }
         [HttpPost]
         public IActionResult ProcedureTableRelation(ProcedureRelation procedureRelation)
@@ -283,16 +336,21 @@ namespace Claysys_SQLTask.Controllers
         [HttpGet]
         public IActionResult ProcedureIndexRelation(int SPID)
         {
-            UserRepository userRepo = new UserRepository(_configuration);
-            ProcedureRelation procedureRelation = new ProcedureRelation();
-            procedureRelation = userRepo.GetProcedureRelationById(SPID);
-            ViewBag.Indexes = userRepo.GetIndexes(procedureRelation.ClientID, procedureRelation.ProjectID, procedureRelation.DataBaseID);
-            ViewBag.ClientName = procedureRelation.ClientName;
-            ViewBag.ProjectName = procedureRelation.ProjectName;
-            ViewBag.SPID = procedureRelation.SPID;
-            ViewBag.SPName = procedureRelation.SPName;
-            ViewBag.DatabaseName = procedureRelation.DataBaseName;
-            return View();
+            if (_httpContextAccessor.HttpContext.Session.GetString("UserName") != null)
+            {
+                UserRepository userRepo = new UserRepository(_configuration);
+                ProcedureRelation procedureRelation = new ProcedureRelation();
+                procedureRelation = userRepo.GetProcedureRelationById(SPID);
+                ViewBag.Indexes = userRepo.GetIndexes(procedureRelation.ClientID, procedureRelation.ProjectID, procedureRelation.DataBaseID);
+                ViewBag.ClientName = procedureRelation.ClientName;
+                ViewBag.ProjectName = procedureRelation.ProjectName;
+                ViewBag.SPID = procedureRelation.SPID;
+                ViewBag.SPName = procedureRelation.SPName;
+                ViewBag.DatabaseName = procedureRelation.DataBaseName;
+                return View();
+            }
+            return RedirectToAction("SessionExpired", "Login");
+
         }
 
         [HttpPost]
@@ -436,6 +494,19 @@ namespace Claysys_SQLTask.Controllers
             return Json(new { data = result, totalRecords });
         }
 
+        [HttpPost]
+        public IActionResult UpdatePriority(string priority)
+        {
+            var CreatedBy = (int)_httpContextAccessor.HttpContext.Session.GetInt32("EmpId");
+            bool result = _userRepository.UpdatePriorityStatus(priority,CreatedBy);
+            if (result)
+            {
+                return Ok(new { success = true });
+            }
+            return NotFound();
+            
+
+        }
 
     }
 

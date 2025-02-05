@@ -6,10 +6,10 @@
 }
 <link href="~/css/gridascdesc.css" rel="stylesheet" />
 <script src="~/js/listdetails.js" type="text/javascript"></script>
-<h3 class="text-center">Create Index</h3>
+<h3 class="text-center">Index</h3>
 
 <div class="container">
-        <form asp-action="AddIndex">
+        <form id="form" asp-action="AddIndex">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="row mt-3">
         <div class="col-md-4">
@@ -22,6 +22,7 @@
                         <option value="@client.ClientID">@client.ClientName</option>
                     }
                 </select>
+                <span asp-validation-for="ClientID" class="text-danger ClientID-Validation"></span>
             </div>
         </div>
         <div class="col-md-4">
@@ -30,6 +31,7 @@
                 <select id="project" asp-for="ProjectID" class="form-control" disabled>
                     <option value="">Select Project</option>
                 </select>
+                <span asp-validation-for="ProjectID" class="text-danger ProjectID-Validation"></span>
             </div>
         </div>
         <div class="col-md-4">
@@ -38,6 +40,7 @@
                 <select id="database" asp-for="DataBaseID" class="form-control" disabled>
                     <option value="">Select Database</option>
                 </select>
+                <span asp-validation-for="DataBaseID" class="text-danger DataBaseID-Validation"></span>
             </div>
         </div>
         </div>
@@ -48,12 +51,14 @@
                 <select id="table" asp-for="TableID" class="form-control" disabled>
                     <option value="">Select Table</option>
                 </select>
+                    <span asp-validation-for="TableID" class="text-danger TableID-Validation"></span>
             </div>
         </div>
         <div class="col-md-4">
             <div class="form-group">
                 <label for="IndexName">Index name</label>
                 <input asp-for="IndexName" class="form-control" />
+                    <span asp-validation-for="TableID" class="text-danger IndexName-Validation"></span>
             </div>
         </div>
         <div class="col-md-4">
@@ -298,3 +303,61 @@
             margin: 0 5px;
         }
 </style>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById('form');
+        const client = document.getElementById('client');
+        const project = document.getElementById('project');
+        const database = document.getElementById('database');
+        const table = document.getElementById('table');
+        const indexName = document.querySelector('input[name="IndexName"]');
+        const clientIdValidation = document.querySelector('.ClientID-Validation');
+        const projectIdValidation = document.querySelector('.ProjectID-Validation');
+        const dataBaseIdValidation = document.querySelector('.DataBaseID-Validation');
+        const tableIdValidation = document.querySelector('.TableID-Validation');
+        const IndexNameValidation = document.querySelector('.IndexName-Validation');
+        form.addEventListener("submit", function (event) {
+            let hasErrors = false;
+            clientIdValidation.textContent = '';
+            projectIdValidation.textContent = '';
+            dataBaseIdValidation.textContent = '';
+            tableIdValidation.textContent = '';
+            IndexNameValidation.textContent = '';
+            if (client.value === '') {
+                clientIdValidation.textContent = 'Please select a client';
+                hasErrors = true;
+
+            }
+            if (project.value === '') {
+                projectIdValidation.textContent = 'Please select a project';
+                hasErrors = true;
+
+            }
+            if (database.value === '') {
+                dataBaseIdValidation.textContent = 'please select a database';
+                hasErrors = true;
+
+            }
+            if (table.value === '') {
+                tableIdValidation.textContent = 'please select a table';
+                hasErrors = true;
+            }
+            if (indexName.value.trim() === '') {
+                IndexNameValidation.textContent = 'Index name is required';
+                hasErrors = true;
+            }
+            
+            if (hasErrors) {
+                event.preventDefault();
+            }
+
+
+        });
+
+    });
+
+
+
+</script>

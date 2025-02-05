@@ -10,7 +10,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Database">
+        <form id="form" asp-action="Database">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group mt-2">
                 <label for="client">Client</label>
@@ -21,17 +21,19 @@
                         <option value="@client.ClientID">@client.ClientName</option>
                     }
                 </select>
+                <span asp-validation-for="ClientID" class="text-danger ClientID-Validation"></span>
             </div>
             <div class="form-group mt-2">
                 <label for="project">Project</label>
                 <select id="project" asp-for="ProjectID" class="form-control" disabled>
                     <option value="">Select Project</option>
                 </select>
+                <span asp-validation-for="ProjectID" class="text-danger ProjectID-Validation"></span>
             </div>
             <div class="form-group mt-2">
                 <label asp-for="DataBaseName" class="control-label">Database name</label>
                 <input asp-for="DataBaseName" class="form-control" />
-                <span asp-validation-for="DataBaseName" class="text-danger"></span>
+                <span asp-validation-for="DataBaseName" class="text-danger DataBaseName-Validation"></span>
             </div>
             <div class="form-group mt-3">
                 <input type="submit" style="background-color:#16a358;color:white" value="Create" class="btn btn-block" />
@@ -218,3 +220,43 @@
         });
     </script>
 </body>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById('form');
+        const client = document.getElementById('client');
+        const project = document.getElementById('project');
+        const dataBaseName = document.querySelector('input[name="DataBaseName"]');
+        const clientIdValidation = document.querySelector('.ClientID-Validation');
+        const projectIdValidation = document.querySelector('.ProjectID-Validation');
+        const dataBaseNameValidation = document.querySelector('.DataBaseName-Validation');
+        form.addEventListener("submit", function (event) {
+            let hasErrors = false;
+            clientIdValidation.textContent = '';
+            projectIdValidation.textContent = '';
+            dataBaseNameValidation.textContent = '';
+            if (client.value === '') {
+                clientIdValidation.textContent = 'Please select a client';
+                hasErrors = true;
+            }
+            if (project.value === '') {
+                projectIdValidation.textContent = 'Please select a project';
+                hasErrors = true;
+            }
+            if (dataBaseName.value.trim()==='')
+            {
+                dataBaseNameValidation.textContent = 'Database name is required';
+                hasErrors = true;
+            }
+            if (hasErrors)
+            {
+                event.preventDefault();
+            }
+
+        });
+
+    });
+    
+
+
+</script>

@@ -1,3 +1,18 @@
 ﻿.navbar-brand img {
     max-width: 125px;
 }
+.css-nav-list a{
+    padding: 5px;
+    color:black;
+}
+
+.css-nav-list a:hover {
+    color: seagreen;
+
+}
+
+html, body, body.home {
+    font-family: "Roboto", sans-serif !important;
+    margin: 0 auto;
+    padding: 0;
+}

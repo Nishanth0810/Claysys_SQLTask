@@ -9,12 +9,13 @@
                      .GroupBy(x => x.index / chunkSize)
                      .Select(g => g.Select(x => x.value).ToList())
                      .ToList();
+    var priorityStatus = ViewBag.Priority;
 }
 
   @{
     Layout = "_UserLayout";
 }
-
+<html>
 <head>
     <link href="~/lib/bootstrap/dist/css/bootstrap4.css" rel="stylesheet" />
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -23,12 +24,25 @@
 
 </head>
 <body>
-    <div class="container mt-5">
+    <div class="col-3 col-sm-3 col-md-3 col-lg-3">
+        <div class="form-group mt-2">
+            <label for="Priority">Priority</label>
+            <select id="Priority" class="form-control" onchange="UpdatePriority()">
+                <option value="@ViewBag.Priority">Current priority - @ViewBag.Priority</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+        </div>
+    </div>
+    
+    
+    <div class="container mt-2">
         <div class="form-row">
             <div class="form-group col-md-4">
                 <div class="talent-container">
                     <div class="talent-header">
-                        <i class="fa-solid fa-table"></i>
+                        <i class="fa-solid fa-table text-danger"></i>
                         <h5>My Sp Review</h5>
                     </div>
                     @if (Model.spnames.Count == 0)
@@ -54,7 +68,7 @@
             <div class="form-group col-md-4">
                 <div class="talent-container">
                     <div class="talent-header">
-                        <i class="fas fa-suitcase d-inline-block" aria-hidden="true"></i>
+                        <i class="fas fa-suitcase d-inline-block text-danger" aria-hidden="true"></i>
                         <h5>My Current Project</h5>
                     </div>
                     <div class="Content">
@@ -67,7 +81,7 @@
             <div class="form-group col-md-4">
                 <div class="talent-container">
                     <div class="talent-header">
-                        <i class="fa-solid fa-users"></i>
+                        <i class="fa-solid fa-users text-danger"></i>
                         <h5>Team Availability</h5>
                     </div>
 
@@ -102,10 +116,10 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group col-md-4">
+             @* <div class="form-group col-md-4">
                 <div class="talent-container">
                     <div class="talent-header">
-                        <i class="fa-solid fa-table-list"></i>
+                        <i class="fa-solid fa-table-list text-danger"></i>
                         <h5>My Table Review</h5>
                     </div>
                     @if (Model.tabels.Count == 0)
@@ -117,7 +131,7 @@
                         </div>
                     }
                 </div>
-            </div>
+            </div>  *@
         </div>
     </div>
 </body>
@@ -143,6 +157,25 @@
     }
 </script>
 
+<script>
+    function UpdatePriority(){
+        let priorityValue = document.getElementById("Priority").value;
+        $.ajax({
+            url: '@Url.Action("UpdatePriority", "SQL")',
+            type: 'POST',
+            data: {
+                priority: priorityValue
+                },
+            success: function (response) {
+                console.log("priority updated");
+                location.reload();
+            },
+            error: function (xhr, status, error) {
+                console.log("updation faild");
+            }
+        });
+    }
+</script>
 
 </html>
 

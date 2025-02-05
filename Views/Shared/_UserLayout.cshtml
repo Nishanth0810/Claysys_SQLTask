@@ -5,12 +5,13 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ClaysysForms</title>
+    <title>@ViewData["Title"] - TaskTracker</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/UserLayout.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Claysys_SQLTask.styles.css" asp-append-version="true" />
     <link href="~/css/userlayout.css" rel="stylesheet" />
+    @* <link href="~/css/home.css" rel="stylesheet" /> *@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
@@ -23,14 +24,29 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarText">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/Home">Home</a>
+                        <li class="nav-item css-nav-list">
+                            <a class="nav-link text-black" href="/Home">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Features</a>
+                        <li class="nav-item css-nav-list">
+                            <a class="nav-link text-black" asp-controller="SQL" asp-action="Client">Client </a>
+                        </li>
+                        <li class="nav-item css-nav-list">
+                            <a class="nav-link text-black" asp-controller="SQL" asp-action="Project">Project</a>
+                        </li>
+                        <li class="nav-item css-nav-list">
+                            <a class="nav-link text-black" asp-controller="SQL" asp-action="Database">Database</a>
+                        </li>
+                        <li class="nav-item css-nav-list">
+                            <a class="nav-link text-black" asp-controller="SQL" asp-action="AddTable">Table</a>
+                        </li>
+                        <li class="nav-item css-nav-list">
+                            <a class="nav-link text-black" asp-controller="SQL" asp-action="AddProcedure">Procedure</a>
+                        </li>
+                        <li class="nav-item css-nav-list">
+                            <a class="nav-link text-black" asp-controller="SQL" asp-action="AddIndex">Index</a>
                         </li>
                         
-                        <li class="nav-item dropdown">
+                       @*  <li class="nav-item dropdown">
                             <button class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 SQL
                             </button>
@@ -46,13 +62,19 @@
                                 <li><a class="dropdown-item" asp-controller="SQL" asp-action="ProcedureTableRelation" asp-route-SPID="1">ProcedureTableRelation</a></li>
                                 <li><a class="dropdown-item" asp-controller="SQL" asp-action="ProcedureIndexRelation" asp-route-SPID="1">ProcedureIndexRelation</a></li>
                             </ul>
-                        </li>
+                        </li> *@
                         
                     </ul>
-                    <span class="navbar-text text-black">
-                        @User.Identity.Name
-                    </span>
+                    <div class="profile">
+                        <i class="fa-solid fa-user"></i>
+                        <span class="navbar-text text-black text-bold">
+                            @User.Identity.Name
+                        </span>
+                        <a style="padding:5px" title="Logout" asp-controller="Login" asp-action="Logout"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+                    </div>
+           
                 </div>
+                
             </div>
         </nav>
     </header>

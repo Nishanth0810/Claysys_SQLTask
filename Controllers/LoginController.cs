@@ -38,10 +38,21 @@ namespace Claysys_SQLTask.Controllers
                 Role = session.GetString("Role");
                 return RedirectToAction("Home","SQL");
             }
-            
+            ModelState.AddModelError(string.Empty, "Invalid username or password");
             return View(loginModel);
             
         }
-        
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Login", "Login");
+        }
+
+        public IActionResult SessionExpired()
+        {
+            return View();
+        }
+
     }
 }

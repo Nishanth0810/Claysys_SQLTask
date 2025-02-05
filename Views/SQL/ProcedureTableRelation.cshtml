@@ -8,8 +8,8 @@
 <h3 class="text-center"">Procedure Table Relation</h3>
 
 
-<div class="containe mt-3">
-    <form asp-action="ProcedureTableRelation" method="post">
+<div class="container mt-3">
+    <form id="form" asp-action="ProcedureTableRelation" method="post">
             <input asp-for="SPID" class="form-control" hidden/>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -61,6 +61,7 @@
                             <option value="@table.TableID">@table.TableName</option>
                         }
                     </select>
+                    <span asp-validation-for="TableID" class="text-danger TableId-Validation"></span>
                 </div>
             </div>
             
@@ -75,5 +76,28 @@
         </form>
 </div>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("form");
+        const tableID = document.getElementById("TableID");
+        const tableIDValidation = document.querySelector(".TableId-Validation");
 
+        form.addEventListener("submit", function (event) {
+
+            tableIDValidation.textContent = "";
+
+            let hasErrors = false;
+
+            if (tableID.value === "") {
+                tableIDValidation.textContent += "Please select a table.\n";
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                event.preventDefault();
+            }
+        });
+    });
+
+</script>
 
